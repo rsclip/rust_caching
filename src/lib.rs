@@ -10,10 +10,10 @@ pub struct MemCache {
     pub max_size: u64, // Maximum caching size in bytes
     hits: u32,
     misses: u32,
-    cache: HashMap<String, Box<dyn Display + 'static>>,
+    cache: HashMap<u64, Box<dyn Display + 'static>>,
 }
 
-macro_rules! args_id {
+macro_rules! args_id { 
     ($($x:expr), *) => {{
         let mut s = DefaultHasher::new();
         let mut v: Vec<u64> = Vec::new();
