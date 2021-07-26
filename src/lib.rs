@@ -13,6 +13,18 @@ pub struct MemCache {
     cache: HashMap<u64, Box<dyn Display + 'static>>,
 }
 
+impl MemCache {
+    /// Create a new memory cache struct
+    pub fn new(max_size: u64) -> MemCache {
+        return MemCache {
+            max_size,
+            hits: 0u32,
+            misses: 0u32,
+            cache: HashMap::new(),
+        };
+    }
+}
+
 macro_rules! args_id { 
     ($($x:expr), *) => {{
         let mut s = DefaultHasher::new();

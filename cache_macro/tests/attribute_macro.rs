@@ -1,7 +1,7 @@
 use cache_macro::*;
 mod rust_caching;
 
-#[test_macro("a")] // this test macro will convert
+#[test_macro(cache)] // this test macro will convert
 fn test() {
     println!("hey");
 }
@@ -10,8 +10,6 @@ fn test() {
 fn main() {
     // If the test works, S{} should be invalid
     // and H{} should work.
-    let cache = rust_caching::MemCache{
-        max_size: 500000000u64,
-    };
+    let cache = rust_caching::MemCache::new(50000000u64);
     println!("h");
 }
