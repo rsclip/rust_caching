@@ -18,15 +18,13 @@ macro_rules! args_id {
         let mut s = DefaultHasher::new();
         let mut v: Vec<u64> = Vec::new();
         $(
-            v.push({
-                $x.hash(&mut s);
-                s.finish()
-            });
+            $x.hash(&mut s);
         )*
 
-        {
-            v.hash(&mut s);
-            s.finish()
-        }
+        s.finish()
     };}
+}
+
+fn main() {
+    args_id!();
 }
