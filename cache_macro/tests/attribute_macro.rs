@@ -1,7 +1,7 @@
 use cache_macro::*;
 mod rust_caching;
 
-#[test_macro(cache)] // this test macro will convert
+#[test_macro(cache)]
 fn test() {
     println!("hey");
 }
