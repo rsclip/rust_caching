@@ -38,7 +38,8 @@ pub fn test_macro(metadata: TokenStream, item: TokenStream) -> TokenStream {
     // Ensure input_fn is a function
     match input_fn {
         Item::Fn(ref fn_item) => {
-            println!("yooyooooooooooooooooooooooooooooooooo");
+            // Is a function, get the arguments
+
         },
         
         _ => {
@@ -49,4 +50,16 @@ pub fn test_macro(metadata: TokenStream, item: TokenStream) -> TokenStream {
     // Convert input_fn (syn::Item) back into TokenStream
     // and return it
     quote!(#input_fn).into()
+}
+
+macro_rules! args_id { 
+    ($($x:expr), *) => {{
+        let mut s = DefaultHasher::new();
+        let mut v: Vec<u64> = Vec::new();
+        $(
+            $x.hash(&mut s);
+        )*
+
+        s.finish()
+    };}
 }

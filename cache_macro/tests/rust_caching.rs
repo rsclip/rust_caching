@@ -24,19 +24,3 @@ impl MemCache {
         };
     }
 }
-
-macro_rules! args_id { 
-    ($($x:expr), *) => {{
-        let mut s = DefaultHasher::new();
-        let mut v: Vec<u64> = Vec::new();
-        $(
-            $x.hash(&mut s);
-        )*
-
-        s.finish()
-    };}
-}
-
-fn main() {
-    args_id!();
-}

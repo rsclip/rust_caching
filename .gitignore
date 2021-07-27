@@ -1,2 +1,8 @@
 /target
-cache_macro\target
+cache_macro/target/*
+cache_macro/target/debug/.fingerprint/cache_macro-32887e437a6f056b/output-test-integration-test-attribute_macro
+*.pdb
+*.exe
+*.exp
+*.dll
+cache_macro/target
