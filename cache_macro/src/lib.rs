@@ -1,11 +1,12 @@
 extern crate proc_macro;
+extern crate proc_macro2;
 extern crate syn;
 #[macro_use]
 extern crate quote;
 
-use proc_macro::TokenStream;
+use proc_macro::{TokenStream};
 use syn::parse::{Parse, ParseStream};
-use syn::{parse_macro_input, Result, Ident, Item};
+use syn::{parse_macro_input, Result, Ident, Item, ItemFn};
 use quote::{quote};
 
 use std::collections::HashSet;
@@ -40,26 +41,57 @@ pub fn test_macro(metadata: TokenStream, item: TokenStream) -> TokenStream {
         None => { panic!("no cache argument") }
     };
 
-    let input_fn: Item = syn::parse(item).expect("failed to parse input");
+    let input_fn: ItemFn = syn::parse(item).expect("failed to parse input");
 
-    // Ensure input_fn is a function
-    match input_fn {
-        Item::Fn(ref fn_item) => {
-            // Is a function, get the arguments
-            let argument_id = encode_arguments(fn_item);
-        },
-        
-        _ => {
-            println!("not a function");
-        }
-    }
+    // Split the code into function declaration and inner code function
+    let (fn_declaration, inner_code) = split_function_code(&input_fn);
 
     // Add code to accomodate for cache
+    let new_fn = quote! {
+        #fn_declaration {
+            match #cache_ident.check_cache() {
+                std::option::Option::Some(cached_result) => { cached_result }.
+                std::option::Option::None = #inner_code
+            }
+        }
+    };
+
+    println!("{}", new_fn.to_string());
+
+    // Return the new function
+    new_fn.into()
+    // quote!(#input_fn).into()
+}
+
+fn split_function_code(input_fn: &ItemFn) -> (proc_macro2::TokenStream, proc_macro2::TokenStream) {
+    let ts_fn = quote!(#input_fn.block); // tokenstream for function
+
+    let mut fn_iter = ts_fn.into_iter();
+
+    // Get the first 3 elements (function declaration)
+    /*
+    
+    -- PROBLEM --
+    Because quote! parses the String object (not &str), it
+    includes the quotation marks in the final code.
+    You could try taking 3 via iter.take(3) but idk good luck
 
 
-    // Convert input_fn (syn::Item) back into TokenStream
-    // and return it
-    quote!(#input_fn).into()
+    */
+    let mut declaration_str = String::new();
+
+    for _ in 0..3 {
+        declaration_str.push_str(&fn_iter.next().unwrap().to_string());
+        declaration_str.push(' ');  
+    }
+
+    let declaration = quote!(#declaration_str);
+
+    // Next element is the entire function body
+    let body = fn_iter.next().unwrap();
+    let body = quote!(#body);
+
+    (declaration, body)
 }
 
 fn encode_arguments(struct_: &syn::ItemFn) -> u64 {

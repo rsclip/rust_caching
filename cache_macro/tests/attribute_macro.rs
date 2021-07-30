@@ -2,7 +2,7 @@ use cache_macro::*;
 mod rust_caching;
 
 #[test_macro(cache)]
-fn test() {
+fn test(_a: String) {
     println!("hey");
 }
 

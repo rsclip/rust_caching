@@ -8,6 +8,7 @@ edition = "2018"
 [dependencies]
 syn = {version="1.0.74",features=["full","fold"]}
 quote = "1.0.8"
+proc-macro2 = "1"
 
 [lib]
 proc-macro = true
