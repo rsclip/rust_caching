@@ -69,15 +69,6 @@ fn split_function_code(input_fn: &ItemFn) -> (proc_macro2::TokenStream, proc_mac
     let mut fn_iter = ts_fn.into_iter();
 
     // Get the first 3 elements (function declaration)
-    /*
-    
-    -- PROBLEM --
-    Because quote! parses the String object (not &str), it
-    includes the quotation marks in the final code.
-    You could try taking 3 via iter.take(3) but idk good luck
-
-
-    */
     let mut declaration_str = String::new();
 
     for _ in 0..3 {
@@ -85,7 +76,9 @@ fn split_function_code(input_fn: &ItemFn) -> (proc_macro2::TokenStream, proc_mac
         declaration_str.push(' ');  
     }
 
-    let declaration = quote!(#declaration_str);
+    let declaration_str_slice: proc_macro2::TokenStream = declaration_str[..].parse().unwrap();
+
+    let declaration = quote!(#declaration_str_slice);
 
     // Next element is the entire function body
     let body = fn_iter.next().unwrap();
