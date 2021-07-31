@@ -51,7 +51,7 @@ pub fn test_macro(metadata: TokenStream, item: TokenStream) -> TokenStream {
         #fn_declaration {
             match #cache_ident.check_cache() {
                 std::option::Option::Some(cached_result) => { cached_result },
-                std::option::Option::None = #inner_code
+                std::option::Option::None => #inner_code
             }
         }
     };
