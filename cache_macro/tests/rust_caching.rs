@@ -6,13 +6,11 @@ use std::hash::{Hash, Hasher}; // convert args to id
 
 /// Struct to determine how to cache results
 /// in memory (faster)
-#[derive(Debug)]
 pub struct MemCache {
     pub max_size: u64, // Maximum caching size in bytes
     hits: u32,
     misses: u32,
-    // temp removed for printing
-    //cache: HashMap<u64, Box<dyn Display + 'static>>,
+    cache: HashMap<u64, Box<dyn Display + 'static>>,
 }
 
 impl MemCache {
@@ -22,8 +20,12 @@ impl MemCache {
             max_size,
             hits: 0u32,
             misses: 0u32,
-            // temp removed for printing
-            //cache: HashMap::new(),
+            cache: HashMap::new(),
         };
+    }
+
+    /// Check for cache returning the value
+    pub fn check_cache(&self) -> Option<i32> {
+        None
     }
 }

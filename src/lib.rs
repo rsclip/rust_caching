@@ -23,20 +23,9 @@ impl MemCache {
             cache: HashMap::new(),
         };
     }
-}
 
-macro_rules! args_id { 
-    ($($x:expr), *) => {{
-        let mut s = DefaultHasher::new();
-        let mut v: Vec<u64> = Vec::new();
-        $(
-            $x.hash(&mut s);
-        )*
-
-        s.finish()
-    };}
-}
-
-fn main() {
-    args_id!();
+    /// Check for cache returning the value
+    pub fn check_cache(&self) -> Option<i32> {
+        None
+    }
 }

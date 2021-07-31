@@ -49,14 +49,15 @@ pub fn test_macro(metadata: TokenStream, item: TokenStream) -> TokenStream {
     // Add code to accomodate for cache
     let new_fn = quote! {
         #fn_declaration {
+            unsafe {
             match #cache_ident.check_cache() {
                 std::option::Option::Some(cached_result) => { cached_result },
                 std::option::Option::None => #inner_code
-            }
+            }}
         }
     };
 
-    println!("{}", new_fn.to_string());
+    println!("FUNCTION ---------------------\n{}", new_fn.to_string());
 
     // Return the new function
     new_fn.into()
@@ -71,9 +72,14 @@ fn split_function_code(input_fn: &ItemFn) -> (proc_macro2::TokenStream, proc_mac
     // Get the first 3 elements (function declaration)
     let mut declaration_str = String::new();
 
-    for _ in 0..3 {
-        declaration_str.push_str(&fn_iter.next().unwrap().to_string());
-        declaration_str.push(' ');  
+    for _ in 0..6 {
+        let tmp_item = &fn_iter.next().unwrap().to_string();
+        declaration_str.push_str(tmp_item);
+        if tmp_item != "-" {
+            // To ensure there's a ->
+            declaration_str.push(' ');      
+        }
+        
     }
 
     let declaration_str_slice: proc_macro2::TokenStream = declaration_str[..].parse().unwrap();
