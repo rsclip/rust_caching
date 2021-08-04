@@ -3,17 +3,10 @@ use std::option::Option::{Some, None};
 use std::hash::{Hash, Hasher}; // convert args to id
 
 fn expensive_fn(cache: &mut MemCache, num: i32) -> i32 {
-    match cache!(cache, check_cache!(num)) {
-        Some(val) => {
-            println!("[{}] Cached", num);
-            val
-        },
-        None => {
-            // main function here
-            println!("[{}] Uncached", num);
-            4i32
-        }
-    }
+    check_cache!(cache, args!(num), {
+        // Function code here
+        4u32
+    });
 }
 
 #[test]

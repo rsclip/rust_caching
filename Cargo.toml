@@ -8,3 +8,4 @@ edition = "2018"
 [lib]
 
 [dependencies]
+"indexmap" = "1.7"
