@@ -1,4 +1,3 @@
-use indexmap::IndexMap;
 use std::mem::size_of_val; // get current cache size
 use std::collections::hash_map::DefaultHasher; // convert args to id
 use std::hash::{Hash, Hasher}; // convert args to id
