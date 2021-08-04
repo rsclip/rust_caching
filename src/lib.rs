@@ -103,19 +103,26 @@ impl Cache {
     }
 
     /// Get the index of a cached object based on its key
-    fn index_of(&self, key: u64) -> usize {
-        match self.store.iter().position(
+    fn index_of(&self, key: u64) -> Option<usize> {
+        self.store.iter().position(
             |x| x.key == key
-        ) {
-            Some(x) => {x},
-            None => {panic!("key not in cache")}
-        }
+        )
     }
 
     /// Remove the last used cache object
     fn free(&mut self) {
         self.store.pop();
         self.size -= 1;
+    }
+
+    fn get_size(&self) -> usize {
+        std::mem::size_of_val(&*self.store)
+    }
+
+    fn free_until(&mut self, target: usize) {
+        while self.get_size() >= target {
+            self.free();
+        }
     }
 }
 
