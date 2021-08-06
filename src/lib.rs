@@ -8,9 +8,9 @@ use std::option::Option::{Some, None};
 /// in memory (faster)
 pub struct MemCache {
     pub max_size: usize, // Maximum caching size in bytes
-    pub hits: u32,
-    pub misses: u32,
-    pub cache: Cache,
+    pub hits: u32, // cache hits
+    pub misses: u32, // cache misses
+    pub cache: Cache, // cache store
 }
 
 impl MemCache {
@@ -24,29 +24,29 @@ impl MemCache {
         };
     }
 
-    /// Check for cache returning the value
-    pub fn check_cache(&self, arg_id: u64) -> Option<Box<dyn Any>> {
-        // Match arg_id as cache key and respond accordingly
-        match self.cache.get_index(&arg_id) {
-            Some(cached_index) => {
-                // Move the hit cache to the top
+    /// Check for cache returning the value, where T is
+    /// the expected output type
+    pub fn check_cache<T: 'static>(&mut self, arg_id: u64) -> Option<&T> {
+        // Try to get the index of the key
+        let index = match self.cache.index_of(arg_id) {
+            Some(index) => {index},
+            None => {return None;}
+        };
 
-            }
-        }
+        // Get the value
+        let val = self.cache.val::<T>(index);
+
+        // make sure you register a hit/miss
+        Some(val)
     }
 
     /// Insert to bottom of cache
-    pub fn write_cache(&mut self, arg_id: u64, return_val: Box<dyn Any>) {
-        // Remove elements until enough space is allocated
-        let current_size = size_of_val(&self);
-        let size_to_allocate = size_of_val(&return_val);
+    pub fn write_cache(&mut self, arg_id: u64, return_val: Box<dyn Any>, size: usize) {
+        // Ensure there is enough space for the new cache
+        let max_size = self.cache.get_size() + size;
+        self.cache.free_until(max_size);
 
-        // while predicted size > target size
-        while current_size + size_to_allocate > self.max_size {
-            // Remove the last
-            self.cache.pop();
-        }
-
+        // Add key into cache
         self.cache.insert(arg_id, return_val);
     }
 
@@ -62,14 +62,14 @@ impl MemCache {
 }
 
 /// Struct storing indexed cached values of any type
-struct Cache {
-    store: Vec<CachedObject>,
-    size: usize
+pub struct Cache {
+    pub store: Vec<CachedObject>,
+    pub size: usize
 }
 
 impl Cache {
     /// Create a new cache struct
-    fn new() -> Cache {
+    pub fn new() -> Cache {
         Cache {
             store: Vec::new(),
             size: 0
@@ -77,49 +77,49 @@ impl Cache {
     }
 
     /// Insert a key & value into cache at a certain position
-    fn insert(&mut self, key: u64, val: Box<dyn Any>) -> usize {
+    pub fn insert(&mut self, key: u64, val: Box<dyn Any>) -> usize {
         self.store.insert(0, CachedObject::new(key, val));
         self.size += 1;
         0
     }
 
     /// Move a cached object at an index to the front (after cache hit)
-    fn move_front(&mut self, index: usize) {
+    pub fn move_front(&mut self, index: usize) {
         // take ownership
         let val = self.store.remove(index);
         self.store.insert(0, val);
     }
 
     /// Get the cached object's value at a specific index
-    fn val<T: 'static>(&self, index: usize) -> &T {
+    pub fn val<T: 'static>(&self, index: usize) -> &T {
         let result: &T = self.store[index].val.downcast_ref::<T>().unwrap();
         result
     }
 
     /// Get both the key and value of a cached object at a specific index
-    fn val_full<T: 'static>(&self, index: usize) -> (u64, &T) {
+    pub fn val_full<T: 'static>(&self, index: usize) -> (u64, &T) {
         let result: &T = self.store[index].val.downcast_ref::<T>().unwrap();
         (self.store[index].key, result)
     }
 
     /// Get the index of a cached object based on its key
-    fn index_of(&self, key: u64) -> Option<usize> {
+    pub fn index_of(&self, key: u64) -> Option<usize> {
         self.store.iter().position(
             |x| x.key == key
         )
     }
 
     /// Remove the last used cache object
-    fn free(&mut self) {
+    pub fn free(&mut self) {
         self.store.pop();
         self.size -= 1;
     }
 
-    fn get_size(&self) -> usize {
+    pub fn get_size(&self) -> usize {
         std::mem::size_of_val(&*self.store)
     }
 
-    fn free_until(&mut self, target: usize) {
+    pub fn free_until(&mut self, target: usize) {
         while self.get_size() >= target {
             self.free();
         }
@@ -127,14 +127,14 @@ impl Cache {
 }
 
 /// Stores a single cached result
-struct CachedObject {
-    key: u64,
-    val: Box<dyn Any>,
+pub struct CachedObject {
+    pub key: u64,
+    pub val: Box<dyn Any>,
 }
 
 impl CachedObject {
     /// Create a new cached result from a key and value
-    fn new(key: u64, val: Box<dyn Any>) -> CachedObject {
+    pub fn new(key: u64, val: Box<dyn Any>) -> CachedObject {
         CachedObject {
             key,
             val
@@ -146,14 +146,15 @@ impl CachedObject {
 /// i.e `cache!(cache_struct, args!(1, 2, 3))`
 #[macro_export]
 macro_rules! check_cache {
-    ($s:expr, $a:expr, $b:block) => {
+    ($s:expr, $a:expr, $r:ty, $b:block) => {
         // $s: cache struct
         // $a: argument id
-        match $s.check_cache($a) {
+        // $b: block of code
+        match $s.check_cache::<$r>($a) {
             std::option::Option::Some(cached_result) => {
                 // Return cached value
                 $s.hit();
-                Some(cached_result)
+                *cached_result
             },
 
             std::option::Option::None => {
@@ -161,7 +162,7 @@ macro_rules! check_cache {
                 // value.
                 $s.miss();
                 let block_return_val = $b;
-                $s.write_cache($a, block_return_val);
+                $s.write_cache($a, Box::new(block_return_val), get_size!(block_return_val));
                 block_return_val
             }
         }
