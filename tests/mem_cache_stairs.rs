@@ -1,8 +1,8 @@
 use rust_caching::*;
 use std::time::Instant; // get time elapsed
 
-fn steps_to(cache: &mut MemCache, stair: usize) -> usize {
-    check_cache!(cache, args!(stair), usize, {
+fn steps_to(cache: &mut MemCache, stair: u128) -> u128 {
+    check_cache!(cache, args!(stair), u128, {
         match stair {
         1 => { 1 },
         2 => { 2 },
@@ -21,7 +21,7 @@ fn main() {
     // stair = 36 would take about 10 seconds
     // as stair increases, the time taken expotentially increases
     let mut cache = MemCache::new(100);
-    let stair = 50;
+    let stair = 120u128;
 
     let now = Instant::now();
     let result = steps_to(&mut cache, stair);
