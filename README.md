@@ -6,17 +6,11 @@ A simple safe Rust library to cache functions (or sections of code) in memory, m
 ## Usage
 
 ### Implementing into a cargo project
-1. In the same directory as your project, clone this repository:  
-`git clone https://github.com/Cyclip/rust_caching/`
-2. Add the `rust_caching` dependency into `Cargo.toml`:  
+Add `rust_caching` to your dependencies in `Cargo.toml`:  
 ```
-[package]
-name = "example"
-version = "0.1.0"
-edition = "2018"
-
+# Cargo.toml
 [dependencies]
-rust_caching = {path = "rust_caching"}
+rust_caching = "0.1.0"
 ```
 
 ### Demo
