@@ -19,10 +19,10 @@ impl MemCache {
 
     /// Check for cache returning the value, where T is
     /// the expected output type
-    pub fn check_cache<T: 'static>(&mut self, arg_id: u64) -> Option<&T> {
+    pub fn check_cache<T: 'static>(&mut self, arg_id: u64) -> Option<&T>{
         // Try to get the index of the key
         let index = match self.cache.index_of(arg_id) {
-            Some(index) => {index},
+            Some(index) => {self.cache.move_front(index); 0},
             None => {return None;}
         };
 
@@ -40,6 +40,11 @@ impl MemCache {
         // Add key into cache
         self.cache.insert(arg_id, return_val);
     }
+
+    /// Get the number of currently cached values
+    pub fn size(&self) -> usize {
+        self.cache.store.len()
+    }
 }
 
 /// Struct storing indexed cached values of any type
@@ -50,7 +55,7 @@ pub struct Cache {
 
 impl Cache {
     /// Create a new cache struct
-    pub fn new() -> Cache {
+    fn new() -> Cache {
         Cache {
             store: Vec::new(),
             size: 0
@@ -58,7 +63,7 @@ impl Cache {
     }
 
     /// Insert a key & value into cache at a certain position
-    pub fn insert(&mut self, key: u64, val: Box<dyn Any>) -> usize {
+    fn insert(&mut self, key: u64, val: Box<dyn Any>) -> usize {
         self.store.insert(0, CachedObject::new(key, val));
         self.size += 1;
         0
@@ -72,19 +77,19 @@ impl Cache {
     }
 
     /// Get the cached object's value at a specific index
-    pub fn val<T: 'static>(&self, index: usize) -> &T {
+    fn val<T: 'static>(&self, index: usize) -> &T {
         let result: &T = self.store[index].val.downcast_ref::<T>().unwrap();
         result
     }
 
     /// Get both the key and value of a cached object at a specific index
-    pub fn val_full<T: 'static>(&self, index: usize) -> (u64, &T) {
+    fn val_full<T: 'static>(&self, index: usize) -> (u64, &T) {
         let result: &T = self.store[index].val.downcast_ref::<T>().unwrap();
         (self.store[index].key, result)
     }
 
     /// Get the index of a cached object based on its key
-    pub fn index_of(&self, key: u64) -> Option<usize> {
+    fn index_of(&self, key: u64) -> Option<usize> {
         self.store.iter().position(
             |x| x.key == key
         )
@@ -93,7 +98,7 @@ impl Cache {
     /// Ensure there is enough space in cache, else pop
     /// the last element (or remove the required amount of
     /// elements)
-    pub fn try_pop(&mut self, max_size: usize) {
+    fn try_pop(&mut self, max_size: usize) {
         self.store.truncate(max_size - 1);
     }
 }
@@ -106,7 +111,7 @@ pub struct CachedObject {
 
 impl CachedObject {
     /// Create a new cached result from a key and value
-    pub fn new(key: u64, val: Box<dyn Any>) -> CachedObject {
+    fn new(key: u64, val: Box<dyn Any>) -> CachedObject {
         CachedObject {
             key,
             val

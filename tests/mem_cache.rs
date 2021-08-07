@@ -15,7 +15,7 @@ fn main() {
     for i in 1..20 {
         for _ in 0..2 {
             expensive_fn(&mut cache, i as i32);
-            println!("Cache size: {}/{}\n\n", cache.cache.store.len(), cache.max_size);
+            println!("Cache size: {}/{}", cache.size(), cache.max_size);
         }
     }
 }
