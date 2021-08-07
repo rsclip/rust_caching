@@ -128,6 +128,7 @@ macro_rules! check_cache {
         match $s.check_cache::<$r>($a) {
             std::option::Option::Some(cached_result) => {
                 // Return cached value
+                println!("[+] Cached {}", $a);
                 *cached_result
             },
 
@@ -136,6 +137,7 @@ macro_rules! check_cache {
                 // value.
                 let block_return_val = $b;
                 $s.write_cache($a, Box::new(block_return_val));
+                println!("[-] Uncached {}", $a);
                 block_return_val
             }
         }

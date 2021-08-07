@@ -11,12 +11,13 @@ fn expensive_fn(cache: &mut MemCache, num: i32) -> i32 {
 
 #[test]
 fn main() {
-    println!("running main");
-    let mut cache = MemCache::new(200);
-    expensive_fn(&mut cache, 3i32);
-    expensive_fn(&mut cache, 3i32);
-    expensive_fn(&mut cache, 4i32);
-    expensive_fn(&mut cache, 4i32);
-    expensive_fn(&mut cache, 4i32);
-    expensive_fn(&mut cache, 5i32);
+    let cache_size = 10;
+    println!("Cache size {}", cache_size);
+    let mut cache = MemCache::new(cache_size);
+    for i in 1..20 {
+        for _ in 0..2 {
+            expensive_fn(&mut cache, i as i32);
+            println!("Cache size: {}/{}\n\n", cache.cache.store.len(), cache.max_size);
+        }
+    }
 }
