@@ -1,15 +1,14 @@
 use std::any::Any;
 use std::option::Option::{Some, None};
 
-/// Struct to determine how to cache results
-/// in memory (faster)
+/// Struct to determine how to cache results in memory.
 pub struct MemCache {
     pub max_size: usize, // Maximum num of cached values
     pub cache: Cache, // cache store
 }
 
 impl MemCache {
-    /// Create a new memory cache struct
+    /// Create a new memory cache struct of a certain size
     pub fn new(max_size: usize) -> MemCache {
         return MemCache {
             max_size,
@@ -82,12 +81,6 @@ impl Cache {
         result
     }
 
-    /// Get both the key and value of a cached object at a specific index
-    fn val_full<T: 'static>(&self, index: usize) -> (u64, &T) {
-        let result: &T = self.store[index].val.downcast_ref::<T>().unwrap();
-        (self.store[index].key, result)
-    }
-
     /// Get the index of a cached object based on its key
     fn index_of(&self, key: u64) -> Option<usize> {
         self.store.iter().position(
@@ -120,7 +113,13 @@ impl CachedObject {
 }
 
 /// Main macro to cache a section of code, ideally used with args! macro
-/// i.e `cache!(cache_struct, args!(1, 2, 3))`
+/// Usage:
+/// check_cache!(
+///     &mut MemCache,                          // MemCache struct to store cache
+///     args!("arguments", "for", "function"),  // All input arguments to match with cache
+///     i32,                                    // output type
+///     { ... }                                 // Regular function code to run and cache
+/// }
 #[macro_export]
 macro_rules! check_cache {
     ($s:expr, $a:expr, $r:ty, $b:block) => {
