@@ -1,3 +1,9 @@
+//! rust_caching allows you to cache functions (or sections of codes)
+//! easily and simply using the LRU strategy; either in memory or
+//! with a file system.
+//! 
+//! [ ADD AN EXAMPLE AND STUFF ]
+
 extern crate walkdir; // count files in directory
 
 pub mod memory;

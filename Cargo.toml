@@ -1,6 +1,6 @@
 [package]
 name = "rust_caching"
-version = "0.1.0"
+version = "0.2.0"
 edition = "2018"
 authors = ["Ifaz Ahmed"]
 readme = "README.md"
@@ -19,3 +19,4 @@ name = "rust_caching"
 
 [dependencies]
 walkdir = "2"
+bincode = "1.3.3"
