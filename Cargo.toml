@@ -18,3 +18,4 @@ exclude = [
 name = "rust_caching"
 
 [dependencies]
+walkdir = "2"
