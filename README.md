@@ -5,8 +5,25 @@ A simple safe Rust library to cache functions (or sections of code) in memory, m
 
 ## Usage
 
+### Implementing into a cargo project
+1. In the same directory as your project, clone this repository:  
+`git clone https://github.com/Cyclip/rust_caching/`
+2. Add the `rust_caching` dependency into `Cargo.toml`:  
+```
+[package]
+name = "example"
+version = "0.1.0"
+edition = "2018"
+
+[dependencies]
+rust_caching = {path = "rust_caching"}
+```
+
+### Demo
+
 Here's a demo which caches an expensive function to calculate the number of possible steps to a specific stair; assuming you can only take up to 3:
 ```rust
+extern crate rust_caching;
 use rust_caching::*;
 
 fn steps_to(cache: &mut MemCache, stair: u128) -> u128 {
