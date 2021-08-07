@@ -1,6 +1,4 @@
 use rust_caching::*;
-use std::option::Option::{Some, None};
-use std::hash::{Hash, Hasher}; // convert args to id
 
 fn expensive_fn(cache: &mut MemCache, num: i32) -> i32 {
     check_cache!(cache, args!(num), i32, {

@@ -1,5 +1,3 @@
-use std::collections::hash_map::DefaultHasher; // convert args to id
-use std::hash::{Hash, Hasher}; // convert args to id
 use std::any::Any;
 use std::option::Option::{Some, None};
 
@@ -165,6 +163,7 @@ macro_rules! function {
 #[macro_export]
 macro_rules! args {
     ($($x:expr), *) => {{
+        use std::hash::{Hash, Hasher};
         let mut s = std::collections::hash_map::DefaultHasher::new();
         $(
             $x.hash(&mut s);
