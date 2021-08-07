@@ -1,9 +1,7 @@
 extern crate walkdir; // count files in directory
 
-pub mod Memory;
-
-use std::any::Any;
-
+pub mod memory;
+pub mod file;
 
 /// Main macro to cache a section of code, ideally used with args! macro
 /// Usage:
