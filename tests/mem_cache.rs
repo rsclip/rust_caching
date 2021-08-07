@@ -12,7 +12,7 @@ fn expensive_fn(cache: &mut MemCache, num: i32) -> i32 {
 #[test]
 fn main() {
     println!("running main");
-    let mut cache = MemCache::new(50000000);
+    let mut cache = MemCache::new(200);
     expensive_fn(&mut cache, 3i32);
     expensive_fn(&mut cache, 3i32);
     expensive_fn(&mut cache, 4i32);

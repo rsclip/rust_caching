@@ -1,4 +1,3 @@
-use std::mem::size_of_val; // get current cache size
 use std::collections::hash_map::DefaultHasher; // convert args to id
 use std::hash::{Hash, Hasher}; // convert args to id
 use std::any::Any;
@@ -7,9 +6,7 @@ use std::option::Option::{Some, None};
 /// Struct to determine how to cache results
 /// in memory (faster)
 pub struct MemCache {
-    pub max_size: usize, // Maximum caching size in bytes
-    pub hits: u32, // cache hits
-    pub misses: u32, // cache misses
+    pub max_size: usize, // Maximum num of cached values
     pub cache: Cache, // cache store
 }
 
@@ -18,8 +15,6 @@ impl MemCache {
     pub fn new(max_size: usize) -> MemCache {
         return MemCache {
             max_size,
-            hits: 0u32,
-            misses: 0u32,
             cache: Cache::new(),
         };
     }
@@ -36,28 +31,16 @@ impl MemCache {
         // Get the value
         let val = self.cache.val::<T>(index);
 
-        // make sure you register a hit/miss
         Some(val)
     }
 
     /// Insert to bottom of cache
-    pub fn write_cache(&mut self, arg_id: u64, return_val: Box<dyn Any>, size: usize) {
+    pub fn write_cache(&mut self, arg_id: u64, return_val: Box<dyn Any>) {
         // Ensure there is enough space for the new cache
-        let max_size = self.cache.get_size() + size;
-        self.cache.free_until(max_size);
+        self.cache.try_pop(self.max_size);
 
         // Add key into cache
         self.cache.insert(arg_id, return_val);
-    }
-
-    /// Register a hit
-    pub fn hit(&mut self) {
-        self.hits += 1;
-    }
-
-    /// Register a miss
-    pub fn miss(&mut self) {
-        self.misses += 1;
     }
 }
 
@@ -109,20 +92,11 @@ impl Cache {
         )
     }
 
-    /// Remove the last used cache object
-    pub fn free(&mut self) {
-        self.store.pop();
-        self.size -= 1;
-    }
-
-    pub fn get_size(&self) -> usize {
-        std::mem::size_of_val(&*self.store)
-    }
-
-    pub fn free_until(&mut self, target: usize) {
-        while self.get_size() >= target {
-            self.free();
-        }
+    /// Ensure there is enough space in cache, else pop
+    /// the last element (or remove the required amount of
+    /// elements)
+    pub fn try_pop(&mut self, max_size: usize) {
+        self.store.truncate(max_size - 1);
     }
 }
 
@@ -149,20 +123,19 @@ macro_rules! check_cache {
     ($s:expr, $a:expr, $r:ty, $b:block) => {
         // $s: cache struct
         // $a: argument id
+        // $r: return type
         // $b: block of code
         match $s.check_cache::<$r>($a) {
             std::option::Option::Some(cached_result) => {
                 // Return cached value
-                $s.hit();
                 *cached_result
             },
 
             std::option::Option::None => {
                 // Execute the block of code, cache and return the return
                 // value.
-                $s.miss();
                 let block_return_val = $b;
-                $s.write_cache($a, Box::new(block_return_val), get_size!(block_return_val));
+                $s.write_cache($a, Box::new(block_return_val));
                 block_return_val
             }
         }
