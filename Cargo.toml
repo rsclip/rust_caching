@@ -10,6 +10,9 @@ repository = "https://github.com/Cyclip/rust_caching"
 license = "MIT"
 keywords = ["cache", "caching", "memoization", "lru"]
 categories = ["algorithms", "caching"]
+exclude = [
+    "tests/*"
+]
 
 [lib]
 name = "rust_caching"
