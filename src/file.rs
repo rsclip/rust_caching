@@ -2,6 +2,7 @@ use std::fs; // file system
 use walkdir::WalkDir;
 use std::any::Any;
 use byteorder::{ByteOrder, LittleEndian};
+use std::ops::Index;
 
 /// Struct to manage a file system for caching
 pub struct FileCache {
@@ -44,5 +45,44 @@ impl CacheIndex {
             file,
             directory,
         }
+    }
+
+    /// Register a cached value and index it
+    pub fn register(&self, arg_id: u64, return_val: Vec<u8>) {
+        // Create and write to cache
+        fs::write(
+            self.directory + &arg_id.to_string(),
+            return_val,
+        );
+
+        // Update index
+        let mut index = self.read();
+        index.insert(0, arg_id);
+        self.update(index);
+    }
+
+    /// Read the index
+    fn read(&self) -> Vec<u64> {
+        let encoded: Vec<u8> = fs::read(self.file).unwrap();
+        let decoded: Vec<u64> = bincode::deserialize(&encoded).unwrap();
+        decoded
+    }
+    
+    /// Update index
+    fn update(&self, index: Vec<u64>) {
+        let encoded: Vec<u8> = bincode::serialize(&index).unwrap();
+        fs::write(
+            self.file,
+            encoded
+        );
+    }
+}
+
+/// Implement indexing in CacheIndex
+impl Index<usize> for CacheIndex {
+    type Output = Vec<u8>;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        unimplemented!();
     }
 }
