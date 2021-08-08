@@ -1,7 +1,7 @@
 use rust_caching::*;
 
 fn expensive_fn(cache: &mut memory::MemCache, num: i32) -> i32 {
-    check_cache!(cache, args!(num), i32, {
+    cache_mem!(cache, args!(num), i32, {
         // Function code here
         4i32
     })

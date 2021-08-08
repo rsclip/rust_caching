@@ -5,20 +5,48 @@
 //! [ ADD AN EXAMPLE AND STUFF ]
 
 extern crate walkdir; // count files in directory
+extern crate bincode;
+extern crate byteorder;
 
 pub mod memory;
 pub mod file;
 
-/// Main macro to cache a section of code, ideally used with args! macro
+/// Memory macro to cache a section of code, ideally used with args! macro
 /// Usage:
+/// ```edition2018
 /// check_cache!(
 ///     &mut MemCache,                          // MemCache struct to store cache
 ///     args!("arguments", "for", "function"),  // All input arguments to match with cache
 ///     i32,                                    // output type
 ///     { ... }                                 // Regular function code to run and cache
 /// }
+/// ```
 #[macro_export]
-macro_rules! check_cache {
+macro_rules! cache_mem {
+    ($s:expr, $a:expr, $r:ty, $b:block) => {
+        // $s: cache struct
+        // $a: argument id
+        // $r: return type
+        // $b: block of code
+        match $s.check_cache::<$r>($a) {
+            std::option::Option::Some(cached_result) => {
+                // Return cached value
+                *cached_result
+            },
+
+            std::option::Option::None => {
+                // Execute the block of code, cache and return the return
+                // value.
+                let block_return_val = $b;
+                $s.write_cache($a, Box::new(block_return_val));
+                block_return_val
+            }
+        }
+    }
+}
+
+#[macro_export]
+macro_rules! cache_file {
     ($s:expr, $a:expr, $r:ty, $b:block) => {
         // $s: cache struct
         // $a: argument id

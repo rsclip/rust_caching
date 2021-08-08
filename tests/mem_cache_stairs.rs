@@ -2,7 +2,7 @@ use rust_caching::*;
 use std::time::Instant; // get time elapsed
 
 fn steps_to(cache: &mut memory::MemCache, stair: u128) -> u128 {
-    check_cache!(cache, args!(stair), u128, {
+    cache_mem!(cache, args!(stair), u128, {
         match stair {
         1 => { 1 },
         2 => { 2 },
