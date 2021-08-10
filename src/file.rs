@@ -36,6 +36,12 @@ impl FileCache {
         // Cache return_val and register in index
         self.cache.register(arg_id, return_val);
     }
+
+    // Free enough space to store 1 more cached result
+    // (remove 1 for the index file)
+    fn free_space(&self) {
+        self.cache.free_space(self.max_size - 2);
+    }
 }
 
 impl CacheIndex {
@@ -51,7 +57,7 @@ impl CacheIndex {
     pub fn register(&self, arg_id: u64, return_val: Vec<u8>) {
         // Create and write to cache
         fs::write(
-            self.directory + &arg_id.to_string(),
+            &self.directory + &arg_id.to_string(),
             return_val,
         );
 
@@ -75,6 +81,14 @@ impl CacheIndex {
             self.file,
             encoded
         );
+    }
+
+    fn free_space(&self, target: usize) {
+        let current_size = self.get_size();
+    }
+
+    fn get_size(&self) -> usize {
+        WalkDir::new(self.directory).into_iter().count()
     }
 }
 
