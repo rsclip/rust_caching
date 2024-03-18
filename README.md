@@ -1,7 +1,7 @@
 # rust_caching
 
 ## Description
-A simple safe Rust library to cache functions (or sections of code) in memory, mainly ported from my Python module [SimpleCache](https://github.com/Cyclip/SimpleCache). 
+A simple safe Rust library to cache functions (or sections of code) in memory, mainly ported from my Python module [SimpleCache](https://github.com/rsclip/SimpleCache). 
 
 ## Usage
 
