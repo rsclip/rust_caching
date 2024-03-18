@@ -66,4 +66,4 @@ The `check_cache!` macro takes in the cache struct, input arguments, output type
 - [Rust](https://www.rust-lang.org/)
 
 ## License
-rust_caching is licensed with the [MIT License](LICENSE) and is created by [Cyclip](https://www.github.com/Cyclip)
+rust_caching is licensed with the [MIT License](LICENSE)
